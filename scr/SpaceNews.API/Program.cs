@@ -4,6 +4,17 @@ using SpaceNews.Shared.Database.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var SpaceNewsApiOriginPolicy = "_spaceNewsApiOriginPolicy";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: SpaceNewsApiOriginPolicy,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:5173");
+                      });
+});
+
 builder.Services.AddControllers();
 
 // Add AWS Lambda support. When application is run in Lambda Kestrel is swapped out as the web server with Amazon.Lambda.AspNetCoreServer. This
@@ -21,8 +32,9 @@ builder.Services.AddSingleton(database);
 var app = builder.Build();
 
 app.UseHttpsRedirection();
+
+app.UseCors(SpaceNewsApiOriginPolicy);
 app.UseAuthorization();
-// app.MapControllers();
 
 app.MapGet("/news", async (string text, IMongoDatabase db) =>
 {
