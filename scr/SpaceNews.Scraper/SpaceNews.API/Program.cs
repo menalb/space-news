@@ -3,12 +3,26 @@ using SmartComponents.LocalEmbeddings;
 using SpaceNews.Shared.Database.Model;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("SpaceNews");
+
+builder.Services.AddControllers();
+
+// Add AWS Lambda support. When application is run in Lambda Kestrel is swapped out as the web server with Amazon.Lambda.AspNetCoreServer. This
+// package will act as the webserver translating request and responses between the Lambda event source and ASP.NET Core.
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+
+var connectionString = builder.Environment.IsDevelopment() ?
+     builder.Configuration.GetConnectionString("SpaceNews") :
+      builder.Configuration.GetValue<string>("DB_CONNECTION_STRING");
+
 var conn = new MongoClient(connectionString);
 var database = conn.GetDatabase("SpaceNews");
 builder.Services.AddSingleton(database);
 
 var app = builder.Build();
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+// app.MapControllers();
 
 app.MapGet("/news", async (string text, IMongoDatabase db) =>
 {
@@ -20,7 +34,7 @@ app.MapGet("/news", async (string text, IMongoDatabase db) =>
         NumberOfCandidates = 150
     };
 
-    var agg = database
+    var agg = db
     .GetNewsCollection()
     .Aggregate()
     .VectorSearch(m => m.Embeddings, target.Values, 5, options);
