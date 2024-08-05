@@ -3,15 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceNews.API", "SpaceNews.API\SpaceNews.API.csproj", "{FA70CB99-7469-43FC-8953-9B127798FEC2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaceNews.API", "SpaceNews.API\SpaceNews.API.csproj", "{FA70CB99-7469-43FC-8953-9B127798FEC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceNews.Shared", "SpaceNews.Shared\SpaceNews.Shared.csproj", "{627D7FED-51DF-417D-A5F7-83625703A4C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaceNews.Shared", "SpaceNews.Shared\SpaceNews.Shared.csproj", "{627D7FED-51DF-417D-A5F7-83625703A4C4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaceNews.Scraper.Tests", "SpaceNews.Scraper.Tests\SpaceNews.Scraper.Tests.csproj", "{F909D29B-7B3A-40C2-84F3-C90A63D10610}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaceNews.Scraper", "SpaceNews.Scraper\SpaceNews.Scraper.csproj", "{C0692804-74EE-4171-B5EE-CCB2F1C2F6F7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scraper", "Scraper", "{9C10D365-6940-469D-A5EF-FE51228E0788}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{B8604539-D835-4428-AC1E-89851B9A4927}"
+	ProjectSection(SolutionItems) = preProject
+		index.json = index.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
