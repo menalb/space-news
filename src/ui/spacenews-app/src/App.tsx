@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import parse from 'html-react-parser';
 
 const apiURL = import.meta.env.VITE_API;
@@ -19,12 +19,24 @@ function App() {
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>("");
 
+  const getNews = async () => {
+    try {
+      setIsSearching(true);
+      const response = await fetch(`${apiURL}`);
+      const jsonData = await response.json();
+      setData(jsonData);
+    } catch (error) {
+      console.error(error);
+    }
+    setIsSearching(false);
+  }
+
   const search = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       setIsSearching(true);
       e.preventDefault();
       if (searchText.length > 0) {
-        const response = await fetch(`${apiURL}?text=${searchText}`);
+        const response = await fetch(`${apiURL}/semantic?search=${searchText}`);
         const jsonData = await response.json();
         setData(jsonData);
       }
@@ -33,6 +45,10 @@ function App() {
     }
     setIsSearching(false);
   }
+
+  useEffect(() => {
+    getNews();
+  }, [])
 
   const printDate = (d: string) => {
     return new Date(d).toLocaleString();

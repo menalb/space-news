@@ -1,6 +1,8 @@
 using MongoDB.Driver;
+using MongoDB.Driver.Search;
 using SmartComponents.LocalEmbeddings;
 using SpaceNews.Shared.Database.Model;
+using System.Runtime.CompilerServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,10 +38,10 @@ app.UseHttpsRedirection();
 app.UseCors(SpaceNewsApiOriginPolicy);
 app.UseAuthorization();
 
-app.MapGet("/news", async (string text, IMongoDatabase db) =>
+app.MapGet("/news/semantic", async (string search, IMongoDatabase db) =>
 {
     using var embedder = new LocalEmbedder();
-    var target = embedder.Embed(text);
+    var target = embedder.Embed(search);
     var options = new VectorSearchOptions<NewsEntity>()
     {
         IndexName = "news_vector_index",
@@ -51,17 +53,54 @@ app.MapGet("/news", async (string text, IMongoDatabase db) =>
     .Aggregate()
     .VectorSearch(m => m.Embeddings, target.Values, 5, options);
 
-    var result = await agg.Project(Builders<NewsEntity>.Projection.Expression(f => new Entry(
-        f.Title,
-        f.Description,
-        f.PublishDate,
-        f.Links,
-        f.Source
-    ))).ToListAsync();
+    var result = await ProjectToEntry(agg).ToListAsync();
+
+    return result;
+});
+
+app.MapGet("/news/text", async (string search, IMongoDatabase db) =>
+{
+    var fuzzyOptions = new SearchFuzzyOptions()
+    {
+        MaxEdits = 1,
+        PrefixLength = 1,
+        MaxExpansions = 256
+    };
+
+    var agg = db
+    .GetNewsCollection()
+    .Aggregate()
+    .Search(
+        Builders<NewsEntity>.Search.Text(x => x.Title, search, fuzzyOptions),
+        indexName: "news_text_index");
+
+    var result = await ProjectToEntry(agg).ToListAsync();
+
+    return result;
+});
+
+app.MapGet("/news", async (IMongoDatabase db) =>
+{
+    var agg = db
+    .GetNewsCollection()
+    .Aggregate()
+    .SortByDescending(f => f.PublishDate)
+    .Limit(20);
+
+    var result = await ProjectToEntry(agg).ToListAsync();
 
     return result;
 });
 
 app.Run();
+
+static IAggregateFluent<Entry> ProjectToEntry(IAggregateFluent<NewsEntity> agg) =>
+    agg.Project(Builders<NewsEntity>.Projection.Expression(f => new Entry(
+        f.Title,
+        f.Description,
+        f.PublishDate,
+        f.Links,
+        f.Source
+        )));
 
 public record Entry(string Title, string Description, DateTime PublishDate, NewsLinkEntity[] Links, string Source);
