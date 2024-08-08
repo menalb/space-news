@@ -2,20 +2,26 @@ using MongoDB.Driver;
 using MongoDB.Driver.Search;
 using SmartComponents.LocalEmbeddings;
 using SpaceNews.Shared.Database.Model;
-using System.Runtime.CompilerServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var SpaceNewsApiOriginPolicy = "_spaceNewsApiOriginPolicy";
 
+var allowedOrigin = builder.Environment.IsDevelopment() ?
+    builder.Configuration.GetValue<string>("AllowedOrigin") :
+    builder.Configuration.GetValue<string>("ALLOWED_ORIGIN");
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: SpaceNewsApiOriginPolicy,
-                      policy =>
-                      {
-                          policy.WithOrigins("http://localhost:5173");
-                      });
-});
+    if(allowedOrigin is not null)
+    {
+        options.AddPolicy(name: SpaceNewsApiOriginPolicy,
+            policy =>
+            {
+                policy.WithOrigins(allowedOrigin);
+            });
+    }
+ });
 
 builder.Services.AddControllers();
 
@@ -51,7 +57,7 @@ app.MapGet("/news/semantic", async (string search, IMongoDatabase db) =>
     var agg = db
     .GetNewsCollection()
     .Aggregate()
-    .VectorSearch(m => m.Embeddings, target.Values, 5, options);
+    .VectorSearch(m => m.Embeddings, target.Values, 10, options);
 
     var result = await ProjectToEntry(agg).ToListAsync();
 
@@ -72,7 +78,8 @@ app.MapGet("/news/text", async (string search, IMongoDatabase db) =>
     .Aggregate()
     .Search(
         Builders<NewsEntity>.Search.Text(x => x.Title, search, fuzzyOptions),
-        indexName: "news_text_index");
+        indexName: "news_text_index")
+    .SortByDescending<NewsEntity>(x => x.PublishDate);
 
     var result = await ProjectToEntry(agg).ToListAsync();
 

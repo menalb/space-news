@@ -43,6 +43,7 @@ foreach (var feed in feeds)
             Links = r.Links.Select(fl => new NewsLinkEntity { Uri = fl.Uri.ToString(), Title = fl.Title }).ToArray(),
             Embeddings = GenerateEmbedding(r).Values.ToArray(),
             FeedItemId = r.Id,
+            SourceId = feed.Id,
             Source = feed.Name
         });
 

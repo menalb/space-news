@@ -31,15 +31,25 @@ function App() {
     setIsSearching(false);
   }
 
-  const search = async (e: React.FormEvent<HTMLFormElement>) => {
+  const textSearch = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await loadNews('text');
+  }
+
+  const semanticSearch = async () => {
+    await loadNews('semantic');
+  }
+
+  const loadNews = async (searchType: 'semantic' | 'text' | 'none') => {
+    if (searchType === 'none' && searchText.length === 0) {
+      return;
+    }
     try {
       setIsSearching(true);
-      e.preventDefault();
-      if (searchText.length > 0) {
-        const response = await fetch(`${apiURL}/semantic?search=${searchText}`);
-        const jsonData = await response.json();
-        setData(jsonData);
-      }
+      const suffix = searchType === 'none' ? '' : `/${searchType}?search=${searchText}`;
+      const response = await fetch(`${apiURL}${suffix}`);
+      const jsonData = await response.json();
+      setData(jsonData);
     } catch (error) {
       console.error(error);
     }
@@ -56,11 +66,18 @@ function App() {
 
   return (
     <>
-      <h1 className="p-4 text-2xl font-bold text-center bg-black text-amber-600">SpaceNews</h1>
+      <h1 className="p-4 text-2xl font-bold text-center bg-black">
+        <a href="/"
+          className="underline text-amber-600 hover:text-amber-800 visited:text-amber-600"
+          title="Load top news"
+        >
+          Space News
+        </a>
+      </h1>
       <main>
         <form
           className="m-2 relative text-gray-600 flex flex-initial justify-center"
-          onSubmit={search}
+          onSubmit={textSearch}
         >
           <input
             type="search"
@@ -72,8 +89,19 @@ function App() {
           <button
             type="submit"
             className="pl-2 pr-2 font-semibold bg-black text-amber-600"
+            disabled={searchText.length === 0}
+            title="Run search on news"
           >
             Search
+          </button>
+          <button
+            type="button"
+            className="pl-2 pr-2 ml-2 font-semibold bg-white border-2 border-black text-amber-600"
+            onClick={semanticSearch}
+            disabled={searchText.length === 0}
+            title="Run semantic search on news"
+          >
+            Try Semantic Search
           </button>
         </form>
         {isSearching &&

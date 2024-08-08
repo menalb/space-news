@@ -6,6 +6,9 @@ Parameters:
   DBConnectionString:
     Description: Database ConnectionString
     Type: String
+  AllowedOrigin:
+    Description: API ALlowed Origin
+    Type: String
 Resources:
   AspNetCoreFunction:
     Type: AWS::Serverless::Function
@@ -21,6 +24,7 @@ Resources:
       Environment:
         Variables:
           DB_CONNECTION_STRING: !Ref DBConnectionString
+          ALLOWED_ORIGIN: !Ref AllowedOrigin
       Events:
         ProxyResource:
           Type: HttpApi

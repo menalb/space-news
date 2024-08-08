@@ -1,8 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
-using System.Runtime.CompilerServices;
-using static System.Collections.Specialized.NameObjectCollectionBase;
 
 namespace SpaceNews.Shared.Database.Model;
 
@@ -17,6 +15,7 @@ public class NewsEntity
     public required NewsLinkEntity[] Links { get; set; }
     public required float[] Embeddings { get; set; }
     public string? FeedItemId { get; set; }
+    public required string SourceId { get; set; }
     public required string Source { get; set; }
 }
 
