@@ -4,7 +4,6 @@ using SpaceNews.Scraper.Reader;
 using Microsoft.Extensions.Configuration;
 using SpaceNews.Shared.Database.Model;
 
-
 var config = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile($"appsettings.json")
@@ -29,12 +28,15 @@ EmbeddingF32 GenerateEmbedding(ParsedFeed feed)
     return embedder.Embed(s);
 }
 
+newsCollection.DeleteMany(x => true);
+
 foreach (var feed in feeds)
 {
     Console.WriteLine($"Name: {feed.Name}");
     using (var client = new HttpClient())
     {
         var result = await new FeedReader(client).GetFeed(feed.Url);
+
         var entities = result.Select(r => new NewsEntity
         {
             Title = r.Title,
@@ -47,6 +49,16 @@ foreach (var feed in feeds)
             Source = feed.Name
         });
 
-        await newsCollection.InsertManyAsync(entities);
+        try
+        {
+            await newsCollection.InsertManyAsync(entities, new InsertManyOptions { IsOrdered = false });
+        }
+        catch (MongoBulkWriteException<NewsEntity> ex)
+        {
+            // Step 2: Handle any errors (e.g., duplicates)
+            var insertedCount = ex.Result.InsertedCount;
+            Console.WriteLine($"Documents inserted: {insertedCount}");
+            Console.WriteLine("Some documents were skipped due to duplicates.");
+        }
     }
 }

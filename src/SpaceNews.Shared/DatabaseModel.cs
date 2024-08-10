@@ -8,7 +8,7 @@ public class NewsEntity
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; } = "";
+    public ObjectId Id { get; set; }
     public required string Title { get; set; }
     public required string Description { get; set; }
     public required DateTime PublishDate { get; set; }
