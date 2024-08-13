@@ -76,7 +76,7 @@ function App() {
       </h1>
       <main>
         <form
-          className="m-2 relative text-gray-600 flex flex-initial justify-center"
+          className="sticky top-0 bg-white m-2 relative text-gray-600 flex flex-initial justify-center"
           onSubmit={textSearch}
         >
           <input

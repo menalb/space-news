@@ -31,7 +31,6 @@ public class Function
         var fs = await feedsCollection.FindAsync(f => true);
         var feeds = await fs.ToListAsync();
 
-
         using var embedder = new LocalEmbedder();
 
         EmbeddingF32 GenerateEmbedding(ParsedFeed feed)

@@ -1,10 +1,6 @@
 ﻿AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: An AWS Lambda Function
-Parameters:
-  DBConnectionString:
-    Description: Database ConnectionString
-    Type: String
+Description: An AWS Lambda Function that scape the news feeds and update the database
 Resources:
   AspNetCoreFunction:
     Type: AWS::Serverless::Function
@@ -19,7 +15,7 @@ Resources:
         - AWSLambda_FullAccess
       Environment:
         Variables:
-          DB_CONNECTION_STRING: !Ref DBConnectionString
+          DB_CONNECTION_STRING: "{{resolve:ssm:/SpaceNews/DatabaseConnectionString}}"
       Events:
         InvocationLevel:
           Type: Schedule

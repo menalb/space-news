@@ -3,9 +3,6 @@ Transform: AWS::Serverless-2016-10-31
 Description: An AWS Serverless Application that uses the ASP.NET Core framework running
   in Amazon Lambda.
 Parameters:
-  DBConnectionString:
-    Description: Database ConnectionString
-    Type: String
   AllowedOrigin:
     Description: API ALlowed Origin
     Type: String
@@ -23,8 +20,8 @@ Resources:
         - AWSLambda_FullAccess
       Environment:
         Variables:
-          DB_CONNECTION_STRING: !Ref DBConnectionString
-          ALLOWED_ORIGIN: !Ref AllowedOrigin
+          DB_CONNECTION_STRING: "{{resolve:ssm:/SpaceNews/DatabaseConnectionString}}"
+          ALLOWED_ORIGIN: "{{resolve:ssm:/SpaceNews/AllowedOrigin}}"
       Events:
         ProxyResource:
           Type: HttpApi
