@@ -28,8 +28,6 @@ EmbeddingF32 GenerateEmbedding(ParsedFeed feed)
     return embedder.Embed(s);
 }
 
-newsCollection.DeleteMany(x => true);
-
 foreach (var feed in feeds)
 {
     Console.WriteLine($"Name: {feed.Name}");

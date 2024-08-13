@@ -1,0 +1,27 @@
+﻿AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Lambda Function
+Parameters:
+  DBConnectionString:
+    Description: Database ConnectionString
+    Type: String
+Resources:
+  AspNetCoreFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: "SpaceNews.Updater::SpaceNews.Updater.Function::FunctionHandler"
+      Runtime: dotnet8
+      CodeUri: ''
+      MemorySize: 512
+      Timeout: 120
+      Role: null
+      Policies:
+        - AWSLambda_FullAccess
+      Environment:
+        Variables:
+          DB_CONNECTION_STRING: !Ref DBConnectionString
+      Events:
+        InvocationLevel:
+          Type: Schedule
+          Properties: 
+            Schedule: cron(30 05 * * ? *)
