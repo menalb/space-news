@@ -7,7 +7,7 @@ using SpaceNews.Shared.Database.Model;
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace SpaceNews.Updater;
+namespace SpaceNews.Lambda;
 
 public class Function
 {

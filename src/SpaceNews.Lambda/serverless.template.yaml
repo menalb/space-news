@@ -5,7 +5,7 @@ Resources:
   AspNetCoreFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: "SpaceNews.Updater::SpaceNews.Updater.Function::FunctionHandler"
+      Handler: "SpaceNews.Lambda::SpaceNews.Lambda.Function::FunctionHandler"
       Runtime: dotnet8
       CodeUri: ''
       MemorySize: 512

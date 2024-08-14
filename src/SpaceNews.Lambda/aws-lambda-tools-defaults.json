@@ -8,7 +8,7 @@
   "profile": "",
   "region": "",
   "configuration": "Release",
-  "s3-prefix": "SpaceNewsUpdater/",
+  "s3-prefix": "SpaceNewsLambda/",
   "template": "serverless.template.yaml",
   "template-parameters": ""
 }
