@@ -1,7 +1,7 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson;
 
-namespace SpaceNews.Scraper.Reader;
+namespace SpaceNews.Scraper;
 
 public class SourceEntity
 {

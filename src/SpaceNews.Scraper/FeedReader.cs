@@ -1,7 +1,7 @@
 ﻿using System.ServiceModel.Syndication;
 using System.Xml;
 
-namespace SpaceNews.Scraper.Reader;
+namespace SpaceNews.Scraper;
 
 public record FeedLink(string Title, Uri Uri);
 public record ParsedFeed(string Id, string Title, string Description, DateTimeOffset PublishDate, FeedLink[] Links);
