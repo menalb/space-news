@@ -4,6 +4,7 @@ using SmartComponents.LocalEmbeddings;
 using SpaceNews.Shared.Database.Model;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<LocalEmbedder>();
 
 var SpaceNewsApiOriginPolicy = "_spaceNewsApiOriginPolicy";
 
@@ -44,9 +45,8 @@ app.UseHttpsRedirection();
 app.UseCors(SpaceNewsApiOriginPolicy);
 app.UseAuthorization();
 
-app.MapGet("/news/semantic", async (string search, IMongoDatabase db) =>
-{
-    using var embedder = new LocalEmbedder();
+app.MapGet("/news/semantic", async (string search, IMongoDatabase db, LocalEmbedder embedder) =>
+{    
     var target = embedder.Embed(search);
     var options = new VectorSearchOptions<NewsEntity>()
     {

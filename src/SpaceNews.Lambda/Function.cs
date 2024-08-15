@@ -1,8 +1,8 @@
 using Amazon.Lambda.Core;
-using MongoDB.Driver;
-using SmartComponents.LocalEmbeddings;
+using AWS.Lambda.Powertools.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SpaceNews.Scraper;
-using SpaceNews.Shared.Database.Model;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -11,7 +11,18 @@ namespace SpaceNews.Lambda;
 
 public class Function
 {
-    
+    private readonly ServiceProvider _serviceProvider;
+
+    public Function()
+    {
+        _serviceProvider = ConfigureServices();
+    }
+
+    public Function(ServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+
     /// <summary>
     /// A simple function that takes a string and does a ToUpper
     /// </summary>
@@ -20,10 +31,23 @@ public class Function
     /// <returns></returns>
     public async Task FunctionHandler(ILambdaContext context)
     {
-        // var connectionString = config.GetConnectionString("SpaceNews");
-        var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var processor = scope.ServiceProvider.GetRequiredService<ISpaceNewsProcessor>();
 
-        var processor = new SpaceNewsProcessor(connectionString ?? throw new ArgumentNullException(nameof(connectionString)));
-        await processor.Process();
+            await processor.Process();
+        }
+    }
+
+    private static ServiceProvider ConfigureServices()
+    {
+        var serviceCollection = new ServiceCollection();
+        var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+        var _logger = Logger.Create<SpaceNewsProcessor>();
+        var processor = new SpaceNewsProcessor(connectionString ?? throw new ArgumentNullException(nameof(connectionString)), _logger);
+        
+        serviceCollection.AddSingleton<ISpaceNewsProcessor>(processor);
+
+        return serviceCollection.BuildServiceProvider();
     }
 }

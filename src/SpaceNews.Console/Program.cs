@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using SpaceNews.Scraper;
 
 var config = new ConfigurationBuilder()
@@ -8,5 +9,11 @@ var config = new ConfigurationBuilder()
 
 var connectionString = config.GetConnectionString("SpaceNews");
 
-var processor = new SpaceNewsProcessor(connectionString ?? throw new ArgumentNullException(nameof(connectionString)));
+using ILoggerFactory factory = LoggerFactory.Create(builder => builder.AddConsole());
+var logger = factory.CreateLogger<SpaceNewsProcessor>();
+
+var processor = new SpaceNewsProcessor(
+    connectionString ?? throw new ArgumentNullException(nameof(connectionString)),
+    logger
+    );
 await processor.Process();

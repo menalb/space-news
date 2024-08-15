@@ -13,6 +13,8 @@
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="2.2.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0-preview.5.24306.7" />
+    <PackageReference Include="AWS.Lambda.Powertools.Logging" Version="1.5.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpaceNews.Scraper\SpaceNews.Scraper.csproj" />
