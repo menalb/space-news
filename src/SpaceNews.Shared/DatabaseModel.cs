@@ -15,6 +15,7 @@ public class NewsEntity
     public required NewsLinkEntity[] Links { get; set; }
     public required float[] Embeddings { get; set; }
     public string? FeedItemId { get; set; }
+    [BsonRepresentation(BsonType.ObjectId)]
     public required string SourceId { get; set; }
     public required string Source { get; set; }
 }
@@ -25,7 +26,17 @@ public class NewsLinkEntity
     public required string Title { get; set; }
 }
 
+public class SourceEntity
+{
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; } = "";
+    public required string Name { get; set; }
+    public required string Url { get; set; }
+}
+
 public static class IMongoDBDatabaseExtensions
 {
     public static IMongoCollection<NewsEntity> GetNewsCollection(this IMongoDatabase db) => db.GetCollection<NewsEntity>("news");
+    public static IMongoCollection<SourceEntity> GetSourcesCollection(this IMongoDatabase db) => db.GetCollection<SourceEntity>("sources");
 }

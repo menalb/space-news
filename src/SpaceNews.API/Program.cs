@@ -51,7 +51,7 @@ app.MapGet("/news/semantic", async (string search, IMongoDatabase db, LocalEmbed
     var options = new VectorSearchOptions<NewsEntity>()
     {
         IndexName = "news_vector_index",
-        NumberOfCandidates = 150
+        NumberOfCandidates = 150        
     };
 
     var agg = db
@@ -97,6 +97,16 @@ app.MapGet("/news", async (IMongoDatabase db) =>
     var result = await ProjectToEntry(agg).ToListAsync();
 
     return result;
+});
+
+app.MapGet("/sources", async (IMongoDatabase db) =>
+{
+    var agg = db
+    .GetSourcesCollection()
+    .Aggregate()
+    .SortBy(s => s.Name);
+
+    return await agg.ToListAsync();
 });
 
 app.Run();
