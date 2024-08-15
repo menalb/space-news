@@ -14,7 +14,7 @@ var allowedOrigin = builder.Environment.IsDevelopment() ?
 
 builder.Services.AddCors(options =>
 {
-    if(allowedOrigin is not null)
+    if (allowedOrigin is not null)
     {
         options.AddPolicy(name: SpaceNewsApiOriginPolicy,
             policy =>
@@ -22,7 +22,7 @@ builder.Services.AddCors(options =>
                 policy.WithOrigins(allowedOrigin);
             });
     }
- });
+});
 
 builder.Services.AddControllers();
 
@@ -45,18 +45,19 @@ app.UseHttpsRedirection();
 app.UseCors(SpaceNewsApiOriginPolicy);
 app.UseAuthorization();
 
-app.MapGet("/news/semantic", async (string search, IMongoDatabase db, LocalEmbedder embedder) =>
-{    
+app.MapGet("/news/semantic", async (string search, string[]? sources, IMongoDatabase db, LocalEmbedder embedder) =>
+{
     var target = embedder.Embed(search);
     var options = new VectorSearchOptions<NewsEntity>()
     {
         IndexName = "news_vector_index",
-        NumberOfCandidates = 150        
+        NumberOfCandidates = 150
     };
 
     var agg = db
     .GetNewsCollection()
     .Aggregate()
+    .Match(f => sources == null || sources.Length == 0 || sources.Contains(f.SourceId))
     .VectorSearch(m => m.Embeddings, target.Values, 10, options);
 
     var result = await ProjectToEntry(agg).ToListAsync();
@@ -64,7 +65,7 @@ app.MapGet("/news/semantic", async (string search, IMongoDatabase db, LocalEmbed
     return result;
 });
 
-app.MapGet("/news/text", async (string search, IMongoDatabase db) =>
+app.MapGet("/news/text", async (string search, string[]? sources, IMongoDatabase db) =>
 {
     var fuzzyOptions = new SearchFuzzyOptions()
     {
@@ -76,6 +77,7 @@ app.MapGet("/news/text", async (string search, IMongoDatabase db) =>
     var agg = db
     .GetNewsCollection()
     .Aggregate()
+    .Match(f => sources == null || sources.Length == 0 || sources.Contains(f.SourceId))
     .Search(
         Builders<NewsEntity>.Search.Text(x => x.Title, search, fuzzyOptions),
         indexName: "news_text_index")
@@ -86,11 +88,12 @@ app.MapGet("/news/text", async (string search, IMongoDatabase db) =>
     return result;
 });
 
-app.MapGet("/news", async (IMongoDatabase db) =>
+app.MapGet("/news", async (string[]? sources, IMongoDatabase db) =>
 {
     var agg = db
     .GetNewsCollection()
     .Aggregate()
+    .Match(f => sources == null || sources.Length == 0 || sources.Contains(f.SourceId))
     .SortByDescending(f => f.PublishDate)
     .Limit(20);
 
