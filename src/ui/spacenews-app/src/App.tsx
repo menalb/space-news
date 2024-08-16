@@ -1,21 +1,11 @@
 import { useEffect, useState } from "react";
-import parse from 'html-react-parser';
+import { NewsEntry } from "./data";
+import { NewList } from "./NewsList";
 
 const apiURL = import.meta.env.VITE_API;
 
-type resultData = {
-  title: string;
-  description: string;
-  source: string;
-  publishDate: string;
-  links: {
-    title: string,
-    uri: string
-  }[]
-};
-
 function App() {
-  const [data, setData] = useState<resultData[]>([]);
+  const [data, setData] = useState<NewsEntry[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>("");
 
@@ -59,10 +49,6 @@ function App() {
   useEffect(() => {
     getNews();
   }, [])
-
-  const printDate = (d: string) => {
-    return new Date(d).toLocaleString();
-  }
 
   return (
     <>
@@ -115,45 +101,7 @@ function App() {
             </div>
           </>
         }
-        {!isSearching &&
-          <ul>
-            {data.map((value, index) => {
-              return (
-                <li key={`${index}-${value.title}`} className="flex justify-start flex-col p-2">
-                  <span>
-                    <b>{value.title}</b>
-                  </span>
-                  <span>
-                    {printDate(value.publishDate)}
-                  </span>
-                  <span>
-                    {parse(value.description)}
-                  </span>
-                  <span>
-                    <em>{value.source}</em>
-                  </span>
-                  <span>
-                    {value.links.map(link => (
-                      <span className="pr-1">
-                        [
-                        <a
-                          target="blank"
-                          key={link.title}
-                          href={link.uri}
-                          className="pl-1 pr-1"
-                          title="Open news"
-                        >
-                          {link.title ?? "Open"}
-                        </a>
-                        ]
-                      </span>
-                    ))}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        }
+        {!isSearching && <NewList data={data} />}
       </main>
     </>
   )
