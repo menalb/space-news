@@ -1,7 +1,7 @@
 using MongoDB.Driver;
-using MongoDB.Driver.Search;
 using SmartComponents.LocalEmbeddings;
-using SpaceNews.Shared.Database.Model;
+using FastEndpoints;
+using FastEndpoints.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<LocalEmbedder>();
@@ -29,6 +29,8 @@ builder.Services.AddControllers();
 // Add AWS Lambda support. When application is run in Lambda Kestrel is swapped out as the web server with Amazon.Lambda.AspNetCoreServer. This
 // package will act as the webserver translating request and responses between the Lambda event source and ASP.NET Core.
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+builder.Services.AddFastEndpoints();
+builder.Services.SwaggerDocument();
 
 var connectionString = builder.Environment.IsDevelopment() ?
      builder.Configuration.GetConnectionString("SpaceNews") :
@@ -45,82 +47,6 @@ app.UseHttpsRedirection();
 app.UseCors(SpaceNewsApiOriginPolicy);
 app.UseAuthorization();
 
-app.MapGet("/news/semantic", async (string search, string[]? sources, IMongoDatabase db, LocalEmbedder embedder) =>
-{
-    var target = embedder.Embed(search);
-    var options = new VectorSearchOptions<NewsEntity>()
-    {
-        IndexName = "news_vector_index",
-        NumberOfCandidates = 150
-    };
-
-    var agg = db
-    .GetNewsCollection()
-    .Aggregate()
-    .Match(f => sources == null || sources.Length == 0 || sources.Contains(f.SourceId))
-    .VectorSearch(m => m.Embeddings, target.Values, 10, options);
-
-    var result = await ProjectToEntry(agg).ToListAsync();
-
-    return result;
-});
-
-app.MapGet("/news/text", async (string search, string[]? sources, IMongoDatabase db) =>
-{
-    var fuzzyOptions = new SearchFuzzyOptions()
-    {
-        MaxEdits = 1,
-        PrefixLength = 1,
-        MaxExpansions = 256
-    };
-
-    var agg = db
-    .GetNewsCollection()
-    .Aggregate()
-    .Match(f => sources == null || sources.Length == 0 || sources.Contains(f.SourceId))
-    .Search(
-        Builders<NewsEntity>.Search.Text(x => x.Title, search, fuzzyOptions),
-        indexName: "news_text_index")
-    .SortByDescending<NewsEntity>(x => x.PublishDate);
-
-    var result = await ProjectToEntry(agg).ToListAsync();
-
-    return result;
-});
-
-app.MapGet("/news", async (string[]? sources, IMongoDatabase db) =>
-{
-    var agg = db
-    .GetNewsCollection()
-    .Aggregate()
-    .Match(f => sources == null || sources.Length == 0 || sources.Contains(f.SourceId))
-    .SortByDescending(f => f.PublishDate)
-    .Limit(20);
-
-    var result = await ProjectToEntry(agg).ToListAsync();
-
-    return result;
-});
-
-app.MapGet("/sources", async (IMongoDatabase db) =>
-{
-    var agg = db
-    .GetSourcesCollection()
-    .Aggregate()
-    .SortBy(s => s.Name);
-
-    return await agg.ToListAsync();
-});
-
+app.UseFastEndpoints();
+app.UseSwaggerGen();
 app.Run();
-
-static IAggregateFluent<Entry> ProjectToEntry(IAggregateFluent<NewsEntity> agg) =>
-    agg.Project(Builders<NewsEntity>.Projection.Expression(f => new Entry(
-        f.Title,
-        f.Description,
-        f.PublishDate,
-        f.Links,
-        f.Source
-        )));
-
-public record Entry(string Title, string Description, DateTime PublishDate, NewsLinkEntity[] Links, string Source);
