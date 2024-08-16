@@ -1,0 +1,12 @@
+{
+  "mappings": {
+    "dynamic": true
+  },
+  "storedSource": {
+    "include": [
+      "Description",
+      "Title",
+      "Source"
+    ]
+  }
+}

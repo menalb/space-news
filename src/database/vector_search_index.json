@@ -5,6 +5,10 @@
       "path": "Embeddings",
       "similarity": "cosine",
       "type": "vector"
+    },
+    {
+      "path": "SourceId",
+      "type": "filter"
     }
   ]
 }

@@ -13,12 +13,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scraper", "Scraper", "{9C10
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{B8604539-D835-4428-AC1E-89851B9A4927}"
 	ProjectSection(SolutionItems) = preProject
-		index.json = index.json
+		database\text_search_index.json = database\text_search_index.json
+		database\vector_search_index.json = database\vector_search_index.json
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaceNews.Console", "SpaceNews.Console\SpaceNews.Console.csproj", "{E3612C92-A47C-4294-A1F9-A40E7FD460E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceNews.Scraper", "SpaceNews.Scraper\SpaceNews.Scraper.csproj", "{7C735D82-A48D-4D02-AC47-5E44F35C838C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaceNews.Scraper", "SpaceNews.Scraper\SpaceNews.Scraper.csproj", "{7C735D82-A48D-4D02-AC47-5E44F35C838C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaceNews.Lambda", "SpaceNews.Lambda\SpaceNews.Lambda.csproj", "{44675A5D-2E5E-4DDF-BE1C-F18F6CB9F51B}"
 EndProject

@@ -20,15 +20,13 @@ public class SearchNewsSemantic(IMongoDatabase db, LocalEmbedder embedder) : End
         {
             IndexName = "news_vector_index",
             NumberOfCandidates = 150,
-            // Filter = Builders<NewsEntity>.Filter.Where(f => sources == null || sources.Length == 0 || sources.Contains(f.SourceId))
+            Filter = Builders<NewsEntity>.Filter.Where(f => sources == null || sources.Length == 0 || sources.Contains(f.SourceId))
         };
 
         var agg = db
         .GetNewsCollection()
         .Aggregate()
-        // .Match(f => sources == null || sources.Length == 0 || sources.Contains(f.SourceId))
-        .VectorSearch(m => m.Embeddings, target.Values, 10, options)
-        .Match(f => sources == null || sources.Length == 0 || sources.Contains(f.SourceId));
+        .VectorSearch(m => m.Embeddings, target.Values, 10, options);
 
         return await agg.ProjectToEntry().ToListAsync(ct);
     }
