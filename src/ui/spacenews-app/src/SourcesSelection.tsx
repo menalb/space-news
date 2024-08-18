@@ -111,16 +111,19 @@ const CheckBox = (props: { source: Source, onChecked: (id: string, value: boolea
 
     return (
         <>
-            <label htmlFor="c1" onClick={handleOnChange}>
+            <label htmlFor={s.id}>
                 <span className="group flex rounded ring-black active:ring-1">
                     <input
                         id={s.id}
                         type="checkbox"
-                        className="h-8 w-8 cursor-pointer rounded-full border-back bg-white text-black focus:ring-black"
+                        className={`h-8 w-8 cursor-pointer rounded-full border-back bg-white text-black focus:ring-black`}
                         checked={isChecked}
+                        onChange={handleOnChange}
+                        value={s.id}
                     />
                     <p className="text-reg cursor-pointer pl-2 decoration-solid group-hover:underline">
                         {s.name}
+                        <span>{s.isSelected ? "A" : "B"}</span>
                     </p>
                 </span>
             </label>
