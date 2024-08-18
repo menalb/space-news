@@ -28,11 +28,17 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: ANY
+            RouteSettings:
+              ThrottlingBurstLimit: 40
+              ThrottlingRateLimit: 30
         RootResource:
           Type: HttpApi
           Properties:
             Path: /
             Method: ANY
+            RouteSettings:
+              ThrottlingBurstLimit: 40
+              ThrottlingRateLimit: 30
 Outputs:
   ApiURL:
     Description: API endpoint URL for Prod environment
