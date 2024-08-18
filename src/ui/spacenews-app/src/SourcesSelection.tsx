@@ -24,7 +24,7 @@ export const SourcesSelection: React.FC<Props> = ({
 
     useEffect(() => {
         setData(sources);
-        setCheckedSources(sources.filter(s=>s.isSelected).map(s => s.id));
+        setCheckedSources(sources.filter(s => s.isSelected).map(s => s.id));
     }, [sources])
 
     const handleClose = () => {
@@ -33,7 +33,7 @@ export const SourcesSelection: React.FC<Props> = ({
     }
 
     const handleSelect = () => {
-        setIsVisible(false);        
+        setIsVisible(false);
         onSelect(checkedSources);
     }
 
@@ -67,25 +67,27 @@ export const SourcesSelection: React.FC<Props> = ({
                             </div>
                         </div>
                         {data && <ul className="pl-4 mt-2">
-                            {data.map((s) => <li key={s.id}>
+                            {data.map((s) => <li
+                                key={s.id}
+                                className="pl-4 pt-2 pb-2"
+                            >
                                 <CheckBox
                                     source={s}
                                     onChecked={handleCheck}
                                 />
                             </li>)}
-
                         </ul>}
-                        <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <div className="bg-gray-50 px-4 py-3 text-center mt-5 md:mt-2 flex justify-center">
                             <button
                                 type="button"
-                                className="ml-2 pl-3 pr-3 font-semibold bg-black text-white"
+                                className="mr-5 pl-5 pr-5 pt-3 pb-3 font-semibold bg-black border-2 border-black text-white"
                                 onClick={handleSelect}
                             >
                                 Select
                             </button>
                             <button
                                 type="button"
-                                className="pl-2 pr-2 ml-2 font-semibold bg-white border-2 border-black text-black"
+                                className="ml-5 pl-5 pr-5 pt-3 pb-3 font-semibold bg-white border-2 border-black"
                                 onClick={handleClose}
                             >
                                 Cancel
@@ -109,17 +111,19 @@ const CheckBox = (props: { source: Source, onChecked: (id: string, value: boolea
 
     return (
         <>
-            <input
-                type="checkbox"
-                id={s.id}
-                name={`source-${s.name}`}
-                value={s.id}
-                checked={isChecked}
-                onChange={handleOnChange}
-            />
-            <span className="m-2">
-                {s.name}
-            </span>
+            <label htmlFor="c1" onClick={handleOnChange}>
+                <span className="group flex rounded ring-black active:ring-1">
+                    <input
+                        id={s.id}
+                        type="checkbox"
+                        className="h-8 w-8 cursor-pointer rounded-full border-back bg-white text-black focus:ring-black"
+                        checked={isChecked}
+                    />
+                    <p className="text-reg cursor-pointer pl-2 decoration-solid group-hover:underline">
+                        {s.name}
+                    </p>
+                </span>
+            </label>
         </>
     )
 }
