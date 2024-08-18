@@ -20,4 +20,4 @@ Resources:
         InvocationLevel:
           Type: Schedule
           Properties: 
-            Schedule: cron(30 05 * * ? *)
+            Schedule: cron(0 5/10 * * ? *)
