@@ -1,25 +1,44 @@
 import { useEffect, useState } from "react";
-import { NewsEntry } from "./data";
+import { NewsEntry, Source } from "./data";
 import { NewList } from "./NewsList";
 import { Loader } from "./Loader";
+import { SourcesSelection } from "./SourcesSelection";
 
 const apiURL = import.meta.env.VITE_API;
 
 function App() {
-  const [data, setData] = useState<NewsEntry[]>([]);
+  const [news, setNews] = useState<NewsEntry[]>([]);
+  const [sources, setSources] = useState<Source[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [isSourcesVisible, setIsSourcesVisible] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>("");
 
-  const getNews = async () => {
+  const getNews = async (sources: string[] = []) => {
     try {
       setIsSearching(true);
-      const response = await fetch(`${apiURL}`);
+      let qs = "";
+      if (sources && sources.length > 0) {
+        qs = `?${sources.map(s => `sources=${s}&`).join("")}`;
+        console.log('qs',qs);
+      }
+      const response = await fetch(`${apiURL}/news${qs}`);
       const jsonData = await response.json();
-      setData(jsonData);
+      setNews(jsonData);
     } catch (error) {
       console.error(error);
     }
     setIsSearching(false);
+  }
+
+  const getSources = async () => {
+    try {
+      const response = await fetch(`${apiURL}/sources`);
+      const jsonData = await response.json();
+      const result: Source[] = jsonData;
+      setSources(result.map(s => ({ ...s, isSelected: true })));
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   const textSearch = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -40,26 +59,41 @@ function App() {
       const suffix = searchType === 'none' ? '' : `/${searchType}?search=${searchText}`;
       const response = await fetch(`${apiURL}${suffix}`);
       const jsonData = await response.json();
-      setData(jsonData);
+      setNews(jsonData);
     } catch (error) {
       console.error(error);
     }
     setIsSearching(false);
   }
 
+  const handleSourcesSelection = async (sourceIds: string[]) => {
+    setIsSourcesVisible(false);    
+    setSources(sources.map(s => ({ ...s, isSelected: sourceIds.includes(s.id) })));
+    await getNews(sourceIds);
+  }
+
   useEffect(() => {
     getNews();
+    getSources();
   }, [])
 
   return (
     <>
       <h1 className="p-4 text-2xl font-bold text-center bg-black">
         <a href="/"
-          className="underline text-amber-600 hover:text-amber-800 visited:text-amber-600"
+          className="underline text-amber-600 hover:text-amber-800 visited:text-white"
           title="Load top news"
         >
           Space News
         </a>
+        <button
+          type="button"
+          className="pl-2 pr-2 ml-3 font-semibold bg-black text-white border-2 border-white"
+          title="Select Sources"
+          onClick={() => setIsSourcesVisible(true)}
+        >
+          Sources
+        </button>
       </h1>
       <main>
         <form
@@ -75,7 +109,7 @@ function App() {
           />
           <button
             type="submit"
-            className="pl-2 pr-2 font-semibold bg-black text-amber-600"
+            className="pl-2 pr-2 font-semibold bg-black text-white"
             disabled={searchText.length === 0}
             title="Run search on news"
           >
@@ -83,16 +117,22 @@ function App() {
           </button>
           <button
             type="button"
-            className="pl-2 pr-2 ml-2 font-semibold bg-white border-2 border-black text-amber-600"
+            className="pl-2 pr-2 ml-2 font-semibold bg-white border-2 border-black text-black"
             onClick={semanticSearch}
             disabled={searchText.length === 0}
             title="Run semantic search on news"
           >
-            Try Semantic Search
+            Semantic Search
           </button>
         </form>
+        <SourcesSelection
+          isOpen={isSourcesVisible}
+          onClose={() => setIsSourcesVisible(false)}
+          onSelect={handleSourcesSelection}
+          sources={sources}
+        />
         <Loader isLoading={isSearching} />
-        {!isSearching && <NewList data={data} />}
+        {!isSearching && <NewList data={news} />}
       </main>
     </>
   )

@@ -8,3 +8,9 @@ export type NewsEntry = {
         uri: string
     }[]
 };
+
+export type Source = {
+    id: string;
+    name: string;
+    isSelected: boolean
+}

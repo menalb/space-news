@@ -21,12 +21,15 @@ export const NewList: React.FC<{ data: NewsEntry[] }> = ({ data }) =>
                         <em>{value.source}</em>
                     </span>
                     <span>
-                        {value.links.map(link => (
-                            <span className="pr-1">
+                        {value.links.map((link, index) => (
+                            <span
+                                className="pr-1"
+                                key={`${index}-${link.title}`}
+                            >
                                 [
                                 <a
                                     target="blank"
-                                    key={link.title}
+                                    key={`${index}-${link.title}-link`}
                                     href={link.uri}
                                     className="pl-1 pr-1"
                                     title="Open news"

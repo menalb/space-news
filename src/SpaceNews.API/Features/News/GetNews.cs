@@ -19,7 +19,7 @@ public class GetNews(IMongoDatabase db) : Endpoint<NewsRequest, IList<Entry>>
             .Aggregate()
             .Match(f => sources == null || sources.Length == 0 || sources.Contains(f.SourceId))
             .SortByDescending(f => f.PublishDate)
-            .Limit(20);
+            .Limit(50);
 
         return await agg.ProjectToEntry().ToListAsync(ct);
     }
