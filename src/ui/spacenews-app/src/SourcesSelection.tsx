@@ -123,7 +123,6 @@ const CheckBox = (props: { source: Source, onChecked: (id: string, value: boolea
                     />
                     <p className="text-reg cursor-pointer pl-2 decoration-solid group-hover:underline">
                         {s.name}
-                        <span>{s.isSelected ? "A" : "B"}</span>
                     </p>
                 </span>
             </label>
