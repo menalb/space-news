@@ -5,6 +5,7 @@ import { Loader } from "./Loader";
 import { SourcesSelection } from "./SourcesSelection";
 
 const apiURL = import.meta.env.VITE_API;
+const newsURL = `${apiURL}/news`;
 
 function App() {
   const [news, setNews] = useState<NewsEntry[]>([]);
@@ -21,7 +22,7 @@ function App() {
         qs = `?${sources.map(s => `sources=${s}&`).join("")}`;
         console.log('qs',qs);
       }
-      const response = await fetch(`${apiURL}/news${qs}`);
+      const response = await fetch(`${newsURL}${qs}`);
       const jsonData = await response.json();
       setNews(jsonData);
     } catch (error) {
@@ -57,7 +58,7 @@ function App() {
     try {
       setIsSearching(true);
       const suffix = searchType === 'none' ? '' : `/${searchType}?search=${searchText}`;
-      const response = await fetch(`${apiURL}${suffix}`);
+      const response = await fetch(`${newsURL}${suffix}`);
       const jsonData = await response.json();
       setNews(jsonData);
     } catch (error) {
