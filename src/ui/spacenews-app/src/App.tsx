@@ -3,6 +3,7 @@ import { NewsEntry, Source } from "./data";
 import { NewList } from "./NewsList";
 import { Loader } from "./Loader";
 import { SourcesSelection } from "./SourcesSelection";
+import { SummaryComponent } from "./SummaryComponent";
 
 const apiURL = import.meta.env.VITE_API;
 const newsURL = `${apiURL}/news`;
@@ -20,7 +21,7 @@ function App() {
       let qs = "";
       if (sources && sources.length > 0) {
         qs = `?${sources.map(s => `sources=${s}&`).join("")}`;
-        console.log('qs',qs);
+        console.log('qs', qs);
       }
       const response = await fetch(`${newsURL}${qs}`);
       const jsonData = await response.json();
@@ -68,7 +69,7 @@ function App() {
   }
 
   const handleSourcesSelection = async (sourceIds: string[]) => {
-    setIsSourcesVisible(false);    
+    setIsSourcesVisible(false);
     setSources(sources.map(s => ({ ...s, isSelected: sourceIds.includes(s.id) })));
     await getNews(sourceIds);
   }
@@ -76,7 +77,7 @@ function App() {
   useEffect(() => {
     getNews();
     getSources();
-  }, [])
+  }, []);
 
   return (
     <>
@@ -87,14 +88,17 @@ function App() {
         >
           Space News
         </a>
-        <button
-          type="button"
-          className="pl-2 pr-2 ml-3 font-semibold bg-black text-white border-2 border-white"
-          title="Select Sources"
-          onClick={() => setIsSourcesVisible(true)}
-        >
-          Sources
-        </button>
+        <span>
+          <button
+            type="button"
+            className="pl-2 pr-2 ml-3 font-semibold bg-black text-white border-2 border-white"
+            title="Select Sources"
+            onClick={() => setIsSourcesVisible(true)}
+          >
+            Sources
+          </button>
+          <SummaryComponent />
+        </span>
       </h1>
       <main>
         <form

@@ -14,3 +14,9 @@ export type Source = {
     name: string;
     isSelected: boolean
 }
+
+export type Summary = {
+    id: string;
+    summary: string;
+    dateTime: string;
+}

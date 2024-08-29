@@ -35,8 +35,19 @@ public class SourceEntity
     public required string Url { get; set; }
 }
 
+
+public class SummaryEntity
+{
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; } = "";
+    public required string Summary { get; set; }
+    public required DateTime DateTime { get; set; }
+}
+
 public static class IMongoDBDatabaseExtensions
 {
     public static IMongoCollection<NewsEntity> GetNewsCollection(this IMongoDatabase db) => db.GetCollection<NewsEntity>("news");
     public static IMongoCollection<SourceEntity> GetSourcesCollection(this IMongoDatabase db) => db.GetCollection<SourceEntity>("sources");
+    public static IMongoCollection<SummaryEntity> GetSummariesCollection(this IMongoDatabase db) => db.GetCollection<SummaryEntity>("summaries");
 }
