@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import { Summary } from "./data";
+import React from "react";
 
 const apiURL = import.meta.env.VITE_API;
 const summaryURL = `${apiURL}/summary`;
@@ -8,6 +9,8 @@ export const SummaryComponent: React.FC = () => {
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [summary, setSummary] = useState<string>("");
     const [playerStatus, setPlayerStatus] = useState<'none' | 'playing' | 'paused'>('none');
+    const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
+    const wordsRefs = useRef<{ ref: RefObject<HTMLSpanElement>, startCharIndex: number, endCharIndex: number }[]>([]);
 
     const loadSummary = async () => {
         try {
@@ -26,6 +29,7 @@ export const SummaryComponent: React.FC = () => {
         }
         setPlayerStatus('none');
         setIsVisible(true);
+        setHighlightedIndex(null);
     }
 
     const close = () => {
@@ -39,12 +43,26 @@ export const SummaryComponent: React.FC = () => {
         } else if (playerStatus === 'none') {
             const utterance = new SpeechSynthesisUtterance(summary);
             const voices = speechSynthesis.getVoices();
-            utterance.voice = voices[1]; // Choose a specific voice            
+            const en = voices.find(v => v.lang.startsWith("en"));
+            const voice = en ?? voices[0];
+            utterance.voice = voice;
+            utterance.lang = voice.lang;
+            utterance.pitch = 1;
+            utterance.rate = 1;
+            
             speechSynthesis.speak(utterance);
             utterance.onend = () => {
                 setPlayerStatus('none');
-            }
+                setHighlightedIndex(null);
+            };
+            utterance.onboundary = (event) => {
+                if (event.name === 'word') {
+                    setHighlightedIndex(event.charIndex);
+                }
+            };
         }
+        // try this
+        // https://leaonline.github.io/easy-speech/
         setPlayerStatus('playing');
     }
 
@@ -60,6 +78,57 @@ export const SummaryComponent: React.FC = () => {
     const canPause = () => {
         return summary !== '' && summary.trim().length !== 0 && playerStatus === 'playing';
     }
+
+    useEffect(() => {
+        if (highlightedIndex !== null) {
+            // Find the word that corresponds to the current highlighted index
+            const currentWord = wordsRefs.current.find(
+                (ref) => ref && ref.startCharIndex <= highlightedIndex && ref.endCharIndex > highlightedIndex
+            );
+            if (currentWord && currentWord.ref && currentWord.ref.current) {
+                currentWord.ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }, [highlightedIndex]);
+
+    const renderHighlightedText = () => {
+        const text = summary;
+        const words = text.split(' ');
+        let accumulatedLength = 0;
+
+        return words.map((word, index) => {
+            const startCharIndex = accumulatedLength;
+            const endCharIndex = accumulatedLength + word.length;
+            accumulatedLength += word.length + 1; // Add 1 for the space after each word
+
+            const isHighlighted =
+                highlightedIndex !== null &&
+                highlightedIndex >= startCharIndex &&
+                highlightedIndex < endCharIndex;
+
+            const wordRef = {
+                ref: React.createRef<HTMLSpanElement>(),
+                startCharIndex,
+                endCharIndex,
+            };
+
+            // Store the ref in the refs array
+            wordsRefs.current[index] = wordRef;
+
+            return (
+                <span
+                    key={index}
+                    ref={wordRef.ref}
+                    style={{
+                        backgroundColor: isHighlighted ? 'yellow' : 'transparent',
+                        transition: 'background-color 0.2s ease',
+                    }}
+                >
+                    {word}{' '}
+                </span>
+            );
+        });
+    };
 
     return (
         <>
@@ -117,7 +186,7 @@ export const SummaryComponent: React.FC = () => {
                                     </button>
                                 </div>
                                 <div className="overflow-y-scroll h-96 mt-2">
-                                    {summary}
+                                    {renderHighlightedText()}
                                 </div>
                             </div>
                         </div>
