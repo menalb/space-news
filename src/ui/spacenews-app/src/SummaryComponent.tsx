@@ -7,8 +7,7 @@ const summaryURL = `${apiURL}/summary`;
 export const SummaryComponent: React.FC = () => {
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [summary, setSummary] = useState<string>("");
-    const [wasPlaying, setWasPlaying] = useState<boolean>(false);
-    const [isPlaying, setIsPlaying] = useState<boolean>(false);
+    const [playerStatus, setPlayerStatus] = useState<'none' | 'playing' | 'paused'>('none');
 
     const loadSummary = async () => {
         try {
@@ -25,29 +24,41 @@ export const SummaryComponent: React.FC = () => {
         if (summary === "") {
             await loadSummary();
         }
+        setPlayerStatus('none');
         setIsVisible(true);
     }
 
+    const close = () => {
+        setIsVisible(false);
+        speechSynthesis.cancel()
+    }
+
     const play = () => {
-        if (isPlaying) {
-            return;
-        }
-        setWasPlaying(true);
-        setIsPlaying(true);
-        if (wasPlaying) {
+        if (playerStatus === 'paused') {
             speechSynthesis.resume()
-            
-        } else {
+        } else if (playerStatus === 'none') {
             const utterance = new SpeechSynthesisUtterance(summary);
             const voices = speechSynthesis.getVoices();
-            utterance.voice = voices[0]; // Choose a specific voice            
+            utterance.voice = voices[1]; // Choose a specific voice            
             speechSynthesis.speak(utterance);
+            utterance.onend = () => {
+                setPlayerStatus('none');
+            }
         }
+        setPlayerStatus('playing');
     }
 
     const pause = () => {
         speechSynthesis.pause();
-        setIsPlaying(false);
+        setPlayerStatus('paused');
+    }
+
+    const canPlay = () => {
+        return summary !== '' && summary.trim().length !== 0 && playerStatus !== 'playing';
+    }
+
+    const canPause = () => {
+        return summary !== '' && summary.trim().length !== 0 && playerStatus === 'playing';
     }
 
     return (
@@ -78,7 +89,7 @@ export const SummaryComponent: React.FC = () => {
                                     <button
                                         type="button"
                                         className="ml-5 pl-5 pr-5 pt-3 pb-3 font-semibold bg-black border-2 border-white"
-                                        onClick={() => setIsVisible(false)}
+                                        onClick={close}
                                     >
                                         X
                                     </button>
@@ -89,18 +100,18 @@ export const SummaryComponent: React.FC = () => {
                                 <div className="flex justify-between mr-4">
                                     <button
                                         type="button"
-                                        className="pl-5 pr-5 pt-2 pb-2 font-semibold bg-white border-2 border-black"
+                                        className="pl-5 pr-5 pt-2 pb-2 font-semibold bg-white border-2 border-black disabled:border-slate-300 disabled:text-slate-300"
                                         onClick={() => play()}
-                                        disabled={summary === '' || summary.trim().length === 0 }
+                                        disabled={!canPlay()}
                                     >
                                         Play
                                     </button>
 
                                     <button
                                         type="button"
-                                        className="pl-5 pr-5 pt-2 pb-2 font-semibold bg-white border-2 border-black"
+                                        className="pl-5 pr-5 pt-2 pb-2 font-semibold bg-white border-2 border-black disabled:border-slate-300 disabled:text-slate-300"
                                         onClick={() => pause()}
-                                        disabled={summary === '' || summary.trim().length === 0 || !isPlaying}
+                                        disabled={!canPause()}
                                     >
                                         Pause
                                     </button>
