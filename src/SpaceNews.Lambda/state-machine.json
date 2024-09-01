@@ -1,0 +1,43 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Scraper_Function",
+  "States": {
+    "Scraper_Function": {
+      "Type": "Task",
+      "Resource": "${ScraperFunctionARN}",
+      "Parameters": {
+        "Payload.$": "$"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Summary_Function"
+    },
+    "Summary_Function": {
+      "Type": "Task",
+      "Resource": "${SummaryFunctionARN}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "End": true
+    }
+  }
+}

@@ -1,8 +1,8 @@
 using Amazon.Lambda.Core;
 using AWS.Lambda.Powertools.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using SpaceNews.Scraper;
+using SpaceNews.Summary;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -39,14 +39,28 @@ public class Function
         }
     }
 
+    public async Task SummaryFunctionHandler(ILambdaContext context)
+    {
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var summaryGenerator = scope.ServiceProvider.GetRequiredService<ISummaryGenerator>();
+
+            await summaryGenerator.Generate();
+        }
+    }
+
     private static ServiceProvider ConfigureServices()
     {
         var serviceCollection = new ServiceCollection();
-        var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+        var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
+            ?? throw new ArgumentNullException("DB_CONNECTION_STRING");
+        var modelId = Environment.GetEnvironmentVariable("MODEL_ID")
+            ?? throw new ArgumentNullException("MODEL_ID");
         var _logger = Logger.Create<SpaceNewsProcessor>();
-        var processor = new SpaceNewsProcessor(connectionString ?? throw new ArgumentNullException(nameof(connectionString)), _logger);
-        
+        var processor = new SpaceNewsProcessor(connectionString, _logger);
         serviceCollection.AddSingleton<ISpaceNewsProcessor>(processor);
+        var summaryGenerator = new SummaryGenerator(modelId, connectionString);
+        serviceCollection.AddSingleton<ISummaryGenerator>(summaryGenerator);
 
         return serviceCollection.BuildServiceProvider();
     }

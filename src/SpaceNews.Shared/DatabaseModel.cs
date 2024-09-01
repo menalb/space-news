@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SpaceNews.Shared.Database.Model;
 
@@ -33,6 +34,7 @@ public class SourceEntity
     public string Id { get; set; } = "";
     public required string Name { get; set; }
     public required string Url { get; set; }
+    public bool ExcludeFromSummary { get; set; } = false;
 }
 
 

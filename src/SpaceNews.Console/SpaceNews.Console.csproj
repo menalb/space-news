@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.BedrockRuntime" Version="3.7.402" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
@@ -16,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SpaceNews.Scraper\SpaceNews.Scraper.csproj" />
+    <ProjectReference Include="..\SpaceNews.Summary\SpaceNews.Summary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

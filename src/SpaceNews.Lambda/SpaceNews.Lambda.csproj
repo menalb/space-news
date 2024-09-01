@@ -11,6 +11,7 @@
     <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="AWSSDK.BedrockRuntime" Version="3.7.402" />
     <PackageReference Include="Amazon.Lambda.Core" Version="2.2.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0-preview.5.24306.7" />
@@ -18,5 +19,14 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpaceNews.Scraper\SpaceNews.Scraper.csproj" />
+    <ProjectReference Include="..\SpaceNews.Summary\SpaceNews.Summary.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="statemachine\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="state-machine.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

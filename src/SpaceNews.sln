@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaceNews.Scraper", "SpaceN
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpaceNews.Lambda", "SpaceNews.Lambda\SpaceNews.Lambda.csproj", "{44675A5D-2E5E-4DDF-BE1C-F18F6CB9F51B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceNews.Summary", "SpaceNews.Summary\SpaceNews.Summary.csproj", "{EBAF8FCC-3CA7-4730-953B-226A49689712}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{44675A5D-2E5E-4DDF-BE1C-F18F6CB9F51B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44675A5D-2E5E-4DDF-BE1C-F18F6CB9F51B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44675A5D-2E5E-4DDF-BE1C-F18F6CB9F51B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBAF8FCC-3CA7-4730-953B-226A49689712}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBAF8FCC-3CA7-4730-953B-226A49689712}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBAF8FCC-3CA7-4730-953B-226A49689712}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBAF8FCC-3CA7-4730-953B-226A49689712}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,6 +68,7 @@ Global
 		{E3612C92-A47C-4294-A1F9-A40E7FD460E8} = {9C10D365-6940-469D-A5EF-FE51228E0788}
 		{7C735D82-A48D-4D02-AC47-5E44F35C838C} = {9C10D365-6940-469D-A5EF-FE51228E0788}
 		{44675A5D-2E5E-4DDF-BE1C-F18F6CB9F51B} = {9C10D365-6940-469D-A5EF-FE51228E0788}
+		{EBAF8FCC-3CA7-4730-953B-226A49689712} = {9C10D365-6940-469D-A5EF-FE51228E0788}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A5C5CFE0-B962-4E06-BAE1-7564D4C06D5E}
