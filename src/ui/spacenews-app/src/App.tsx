@@ -81,24 +81,23 @@ function App() {
 
   return (
     <>
-      <h1 className="p-4 text-2xl font-bold text-center bg-black">
+      <h1 className="p-4 text-2xl font-bold text-center bg-black flex justify-between">
         <a href="/"
-          className="underline text-amber-600 hover:text-amber-800 visited:text-white"
+          className="underline text-amber-600 hover:text-amber-800 visited:text-white hidden md:inline"
           title="Load top news"
         >
           Space News
         </a>
-        <span>
-          <button
-            type="button"
-            className="pl-2 pr-2 ml-3 font-semibold bg-black text-white border-2 border-white"
-            title="Select Sources"
-            onClick={() => setIsSourcesVisible(true)}
+        <button
+          type="button"
+          className="pl-2 pr-2 ml-3 font-semibold bg-black text-white border-2 border-white mt-2 sm:mt-0"
+          title="Select Sources"
+          onClick={() => setIsSourcesVisible(true)}
           >
             Sources
           </button>
           <SummaryComponent />
-        </span>
+
       </h1>
       <main>
         <form
