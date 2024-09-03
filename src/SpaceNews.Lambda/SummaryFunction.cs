@@ -1,5 +1,7 @@
 ﻿using Amazon.Lambda.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.SemanticKernel;
+using MongoDB.Driver;
 using SpaceNews.Summary;
 
 namespace SpaceNews.Lambda;
@@ -34,9 +36,14 @@ public class SummaryFunction
             ?? throw new ArgumentNullException("DB_CONNECTION_STRING");
         var modelId = Environment.GetEnvironmentVariable("MODEL_ID")
             ?? throw new ArgumentNullException("MODEL_ID");
+        var apiKey = Environment.GetEnvironmentVariable("API_KEY")
+            ?? throw new ArgumentNullException("API_KEY");
 
-        var summaryGenerator = new SummaryGenerator(modelId, connectionString);
-        serviceCollection.AddSingleton<ISummaryGenerator>(summaryGenerator);
+        serviceCollection.AddOpenAIChatCompletion(modelId, apiKey);
+        serviceCollection.AddKernel();
+
+        serviceCollection.AddSingleton<IMongoClient>(new MongoClient(connectionString));
+        serviceCollection.AddSingleton<ISummaryGenerator,SummaryGenerator>();
 
         return serviceCollection.BuildServiceProvider();
     }

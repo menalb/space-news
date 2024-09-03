@@ -109,6 +109,7 @@ Resources:
         Variables:
           DB_CONNECTION_STRING: "{{resolve:ssm:/SpaceNews/DatabaseConnectionString}}"
           MODEL_ID: "{{resolve:ssm:/SpaceNews/ModelId}}"
+          API_KEY: "{{resolve:ssm:/SpaceNews/ApiKey}}"
 
   StatesExecutionRole:
     Type: "AWS::IAM::Role"

@@ -1,34 +1,36 @@
-﻿using Amazon.BedrockRuntime.Model;
-using Amazon.BedrockRuntime;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using SpaceNews.Shared.Database.Model;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Web;
+using Microsoft.SemanticKernel;
 
 namespace SpaceNews.Summary
 {
     public interface ISummaryGenerator
     {
-        Task Generate();
+        Task Generate(CancellationToken cancellationToken = default);
     }
     public class SummaryGenerator : ISummaryGenerator
     {
-        private readonly string _modelId;
         private readonly IMongoDatabase _database;
-        public SummaryGenerator(string modelId, string connectionString)
+        private readonly KernelPlugin _kernelPlugin;
+        private readonly Kernel _kernel;
+        public SummaryGenerator(Kernel kernel, IMongoClient mongoClient)
         {
-            _modelId = modelId;
-            var conn = new MongoClient(connectionString);
-            _database = conn.GetDatabase("SpaceNews");
+            _database = mongoClient.GetDatabase("SpaceNews");
+            _kernel = kernel ?? throw new ArgumentNullException(nameof(kernel));
+
+            var path = Path.Combine(Environment.CurrentDirectory, "Plugins");
+            _kernelPlugin = kernel.ImportPluginFromPromptDirectory(path);
         }
-        public async Task Generate()
+        public async Task Generate(CancellationToken cancellationToken = default)
         {
             var fromWhen = DateTime.Now.AddDays(-1);
 
             var today = await GetLatestNews(fromWhen);
 
-            var summary = await GenerateSummary(today);
+            var summary = await GenerateSummary(today, cancellationToken);
 
             if (!string.IsNullOrEmpty(summary))
             {
@@ -36,47 +38,18 @@ namespace SpaceNews.Summary
             }
         }
 
-        private async Task<string> GenerateSummary(IList<NewsEntity> news)
+        private async Task<string> GenerateSummary(IList<NewsEntity> news, CancellationToken cancellationToken = default)
         {
             var prompt = PreparePrompt(news);
 
             var userMessage = @$"{prompt}
 From the above list of news create a simple and linear summarization can can be quickly read as a single paragraph, not as a list. Make sure to include each news in the summary.";
 
-            var request = new ConverseRequest
-            {
-                ModelId = _modelId,
-                Messages =
-                [
-                    new() {
-                        Role = ConversationRole.User,
-                        Content = new List<ContentBlock> { new ContentBlock { Text = userMessage } }
-                    }
-                ],
-                InferenceConfig = new InferenceConfiguration()
-                {
-                    MaxTokens = 4096,
-                    Temperature = 0.5F,
-                    TopP = 1F
-                }
-            };
+            var response = await _kernel.InvokeAsync(_kernelPlugin["Summarize"], new() { ["input"] = prompt });
 
-            try
-            {
-                // TODO: DI
-                using var client = new AmazonBedrockRuntimeClient(Amazon.RegionEndpoint.USEast1);
+            Console.WriteLine(response);
 
-                // Send the request to the Bedrock Runtime and wait for the result.
-                var response = await client.ConverseAsync(request);
-
-                // Extract and print the response text.
-                return response?.Output?.Message?.Content?[0]?.Text ?? "";
-            }
-            catch (AmazonBedrockRuntimeException e)
-            {
-                Console.WriteLine($"ERROR: Can't invoke '{_modelId}'. Reason: {e.Message}");
-                throw;
-            }
+            return response.ToString();
         }
 
         private string PreparePrompt(IList<NewsEntity> news)
