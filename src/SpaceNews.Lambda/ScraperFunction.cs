@@ -2,23 +2,22 @@ using Amazon.Lambda.Core;
 using AWS.Lambda.Powertools.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using SpaceNews.Scraper;
-using SpaceNews.Summary;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
 namespace SpaceNews.Lambda;
 
-public class Function
+public class ScraperFunction
 {
     private readonly ServiceProvider _serviceProvider;
 
-    public Function()
+    public ScraperFunction()
     {
         _serviceProvider = ConfigureServices();
     }
 
-    public Function(ServiceProvider serviceProvider)
+    public ScraperFunction(ServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
@@ -31,36 +30,22 @@ public class Function
     /// <returns></returns>
     public async Task FunctionHandler(ILambdaContext context)
     {
-        using (var scope = _serviceProvider.CreateScope())
-        {
-            var processor = scope.ServiceProvider.GetRequiredService<ISpaceNewsProcessor>();
+        using var scope = _serviceProvider.CreateScope();
+        var processor = scope.ServiceProvider.GetRequiredService<ISpaceNewsProcessor>();
 
-            await processor.Process();
-        }
-    }
-
-    public async Task SummaryFunctionHandler(ILambdaContext context)
-    {
-        using (var scope = _serviceProvider.CreateScope())
-        {
-            var summaryGenerator = scope.ServiceProvider.GetRequiredService<ISummaryGenerator>();
-
-            await summaryGenerator.Generate();
-        }
+        await processor.Process();
     }
 
     private static ServiceProvider ConfigureServices()
     {
         var serviceCollection = new ServiceCollection();
+        
         var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
             ?? throw new ArgumentNullException("DB_CONNECTION_STRING");
-        var modelId = Environment.GetEnvironmentVariable("MODEL_ID")
-            ?? throw new ArgumentNullException("MODEL_ID");
+        
         var _logger = Logger.Create<SpaceNewsProcessor>();
         var processor = new SpaceNewsProcessor(connectionString, _logger);
-        serviceCollection.AddSingleton<ISpaceNewsProcessor>(processor);
-        var summaryGenerator = new SummaryGenerator(modelId, connectionString);
-        serviceCollection.AddSingleton<ISummaryGenerator>(summaryGenerator);
+        serviceCollection.AddSingleton<ISpaceNewsProcessor>(processor);        
 
         return serviceCollection.BuildServiceProvider();
     }
