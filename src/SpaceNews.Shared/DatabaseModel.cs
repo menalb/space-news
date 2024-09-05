@@ -1,7 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
-using System.Diagnostics.CodeAnalysis;
 
 namespace SpaceNews.Shared.Database.Model;
 
