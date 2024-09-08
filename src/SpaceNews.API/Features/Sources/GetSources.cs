@@ -13,5 +13,6 @@ public class GetNews(IMongoDatabase db) : EndpointWithoutRequest<IList<SourceEnt
         => await db
         .GetSourcesCollection()
         .Aggregate()
+        .Match(s=>s.IsActive)
         .SortBy(s => s.Name).ToListAsync(cancellationToken: ct);   
 }

@@ -77,7 +77,7 @@ public class SpaceNewsProcessor : ISpaceNewsProcessor
     private async Task<IList<SourceEntity>> GetSources()
     {
         var feedsCollection = _database.GetCollection<SourceEntity>("sources");
-        var fs = await feedsCollection.FindAsync(f => true);
+        var fs = await feedsCollection.FindAsync(f => f.IsActive);
         return await fs.ToListAsync();
     }
 }

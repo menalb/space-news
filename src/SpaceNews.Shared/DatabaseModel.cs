@@ -34,6 +34,7 @@ public class SourceEntity
     public required string Name { get; set; }
     public required string Url { get; set; }
     public bool ExcludeFromSummary { get; set; } = false;
+    public bool IsActive { get; set; } = true;
 }
 
 public class SummaryEntity
