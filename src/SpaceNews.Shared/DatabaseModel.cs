@@ -36,7 +36,6 @@ public class SourceEntity
     public bool ExcludeFromSummary { get; set; } = false;
 }
 
-
 public class SummaryEntity
 {
     [BsonId]
@@ -44,6 +43,13 @@ public class SummaryEntity
     public string Id { get; set; } = "";
     public required string Summary { get; set; }
     public required DateTime DateTime { get; set; }
+    public SummaryPart[]? SummaryParts { get; set; }
+}
+
+public class SummaryPart
+{
+    public required string[] NewsId { get; set; }
+    public required string Summary { get; set; }
 }
 
 public static class IMongoDBDatabaseExtensions
