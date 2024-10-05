@@ -8,7 +8,7 @@ function App() {
       <Routes>
         <Route path='/' element={<SearchNewsPage />} />
         <Route path='/news' element={<SearchNewsPage />} />
-        <Route path='/iss' element={<IssTracketPage />} />
+        <Route path='/iss-tracker' element={<IssTracketPage />} />
       </Routes> 
     </>
   )

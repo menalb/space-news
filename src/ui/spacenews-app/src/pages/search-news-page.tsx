@@ -83,19 +83,26 @@ export const SearchNewsPage: React.FC = () => {
         <>
             <h1 className="p-4 text-2xl font-bold text-center bg-black flex justify-between">
                 <a href="/"
-                    className="underline text-amber-600 hover:text-amber-800 visited:text-white hidden md:inline"
+                    className="underline text-amber-600 hover:text-gray-200 visited:text-white hidden md:inline"
                     title="Load top news"
                 >
                     Space News
                 </a>
-                <button
+                {/* <button
                     type="button"
                     className="pl-2 pr-2 ml-3 font-semibold bg-black text-white border-2 border-white mt-2 sm:mt-0"
                     title="Select Sources"
                     onClick={() => setIsSourcesVisible(true)}
                 >
                     Sources
-                </button>
+                </button> */}
+                <a href="/iss-tracker"
+                    className="underline hover:text-white visited:text-white hover:text-gray-200
+                    pl-2 pr-2 ml-3 font-semibold bg-black text-white border-2 border-white mt-2 sm:mt-0"
+                    title="ISS TRacker"
+                >
+                    IIS Track
+                </a>
                 <SummaryComponent />
 
             </h1>
