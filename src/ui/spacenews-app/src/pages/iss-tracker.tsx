@@ -43,7 +43,7 @@ const ISSTracker = () => {
     const [issRoute, setIssRoute] = useState<LatLng[]>([]);
 
     // Function to fetch the ISS route (array of positions over time)
-    const fetchISSRoute = async (): Promise<LatLng[]> => {
+    const fetchISSRoute = async () => {
         try {
             // Example timestamps (current and future timestamps)
             const timestamps = generateTimestamps();
@@ -51,17 +51,11 @@ const ISSTracker = () => {
                 `https://api.wheretheiss.at/v1/satellites/25544/positions?timestamps=${timestamps}`
             );
             const data: ISSPosition[] = await response.json();
-            return data.map(pos => [pos.latitude, pos.longitude]);
+            const route = data.map(pos => [pos.latitude, pos.longitude]) as LatLng[];
+            setIssRoute(route);
         } catch (error) {
             console.error('Error fetching ISS route:', error);
-            return [];
         }
-    };
-    
-    // Fetch ISS route (positions over time)
-    const updateISSRoute = async () => {
-        const route = await fetchISSRoute();
-        setIssRoute(route);
     };
 
     // Function to fetch ISS data from the API
@@ -79,10 +73,10 @@ const ISSTracker = () => {
     // Use `useEffect` to update the ISS position every 5 seconds
     useEffect(() => {
         fetchISSPosition(); // Initial fetch
-        updateISSRoute(); // Fetch the route (positions over time)
+        fetchISSRoute(); // Fetch the route (positions over time)
         const intervalId = setInterval(() => {
             fetchISSPosition();
-            updateISSRoute();
+            fetchISSRoute();
         }, 5000); // Fetch every 5 seconds        
 
         // Cleanup interval on component unmount
