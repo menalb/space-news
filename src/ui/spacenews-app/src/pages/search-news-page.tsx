@@ -101,7 +101,7 @@ export const SearchNewsPage: React.FC = () => {
                     pl-2 pr-2 ml-3 font-semibold bg-black text-white border-2 border-white mt-2 sm:mt-0"
                     title="ISS TRacker"
                 >
-                    IIS Track
+                    ISS Track
                 </a>
                 <SummaryComponent />
 
