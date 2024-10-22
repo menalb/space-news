@@ -4,8 +4,6 @@ using System.Text.RegularExpressions;
 using System.Text;
 using System.Web;
 using Microsoft.SemanticKernel;
-using Amazon.Runtime.Internal.Transform;
-using System.Text.Json.Serialization;
 using System.Text.Json;
 
 namespace SpaceNews.Summary

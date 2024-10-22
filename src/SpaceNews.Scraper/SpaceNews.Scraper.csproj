@@ -4,6 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LocalEmbeddingsModelUrl>https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/onnx/model.onnx</LocalEmbeddingsModelUrl>
+    <LocalEmbeddingsVocabUrl>https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/vocab.txt</LocalEmbeddingsVocabUrl>
   </PropertyGroup>
 
   <ItemGroup>

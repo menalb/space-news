@@ -1,4 +1,6 @@
-﻿using System.ServiceModel.Syndication;
+﻿using SmartComponents.LocalEmbeddings;
+using SpaceNews.Shared.Database.Model;
+using System.ServiceModel.Syndication;
 using System.Xml;
 
 namespace SpaceNews.Scraper;
@@ -7,12 +9,34 @@ public sealed record FeedLink(string Title, Uri Uri);
 public record ParsedFeed(string Id, string Title, string Description, DateTimeOffset PublishDate, FeedLink[] Links);
 public class FeedReader(HttpClient httpClient)
 {
-    public async Task<IEnumerable<ParsedFeed>> GetFeed(string feedUrl)
+    public async Task<IEnumerable<NewsEntity>> GetFeed(SourceEntity feed, LocalEmbedder embedder)
     {
+        var feedUrl = feed.Url;
         string rssContent = await DownloadRssFeedAsync(feedUrl);
         var rssDoc = LoadRssFeed(rssContent);
-        return ParseRssFeed(rssDoc);
+        return MapFeeds(ParseRssFeed(rssDoc), feed, embedder);
     }
+    private static IEnumerable<NewsEntity> MapFeeds(IEnumerable<ParsedFeed> result, SourceEntity feed, LocalEmbedder embedder)
+    {
+        EmbeddingF32 GenerateEmbedding(ParsedFeed feed)
+        {
+            var s = $"### Title: {feed.Title} ### Description: {feed.Description}";
+            return embedder.Embed(s);
+        }
+
+        return result.Select(r => new NewsEntity
+        {
+            Title = r.Title,
+            Description = r.Description,
+            PublishDate = r.PublishDate.UtcDateTime,
+            Links = r.Links.Select(fl => new NewsLinkEntity { Uri = fl.Uri.ToString(), Title = fl.Title }).ToArray(),
+            Embeddings = GenerateEmbedding(r).Values.ToArray(),
+            FeedItemId = r.Id,
+            SourceId = feed.Id,
+            Source = feed.Name
+        });
+    }
+
     private IEnumerable<ParsedFeed> ParseRssFeed(SyndicationFeed feed)
     {
         return feed.Items.Select(item =>

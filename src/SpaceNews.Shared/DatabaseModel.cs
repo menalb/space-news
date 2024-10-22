@@ -35,6 +35,8 @@ public class SourceEntity
     public required string Url { get; set; }
     public bool ExcludeFromSummary { get; set; } = false;
     public bool IsActive { get; set; } = true;
+    public string? Type {  get; set; }
+    public string? ChannelId { get; set; }
 }
 
 public class SummaryEntity
