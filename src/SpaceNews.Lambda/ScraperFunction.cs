@@ -39,13 +39,19 @@ public class ScraperFunction
     private static ServiceProvider ConfigureServices()
     {
         var serviceCollection = new ServiceCollection();
-        
+
         var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
             ?? throw new ArgumentNullException("DB_CONNECTION_STRING");
-        
+        var youTubeAPIKey = Environment.GetEnvironmentVariable("YOUTUBE_API_KEY")
+            ?? throw new ArgumentNullException("YOUTUBE_API_KEY");
+
         var _logger = Logger.Create<SpaceNewsProcessor>();
-        var processor = new SpaceNewsProcessor(connectionString, _logger);
-        serviceCollection.AddSingleton<ISpaceNewsProcessor>(processor);        
+        
+        serviceCollection.AddSingleton<HttpClient>(new HttpClient());
+        serviceCollection.AddSingleton<IFeedReader>(c=>new FeedReader(c.GetRequiredService<HttpClient>()));
+        serviceCollection.AddSingleton<IVideoReader>(c => new YouTubeVideoReader(c.GetRequiredService<HttpClient>(), youTubeAPIKey));
+
+        serviceCollection.AddSingleton<ISpaceNewsProcessor>(c=> new SpaceNewsProcessor(connectionString, c.GetRequiredService<IFeedReader>(), c.GetRequiredService<IVideoReader>(),_logger));
 
         return serviceCollection.BuildServiceProvider();
     }

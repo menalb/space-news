@@ -87,6 +87,7 @@ Resources:
       Environment:
         Variables:
           DB_CONNECTION_STRING: "{{resolve:ssm:/SpaceNews/DatabaseConnectionString}}"
+          YOUTUBE_API_KEY: "{{resolve:ssm:/SpaceNews/YouTubeAPIKey}}"
   
   SummaryFunction:
     Type: AWS::Serverless::Function

@@ -397,3 +397,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /src/SpaceNews.Lambda/.aws-sam
+/src/SpaceNews.Lambda/Properties/launchSettings.json

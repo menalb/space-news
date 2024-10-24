@@ -11,14 +11,17 @@ public interface ISpaceNewsProcessor
 public class SpaceNewsProcessor : ISpaceNewsProcessor
 {
     private readonly IMongoDatabase _database;
-    private readonly string _youTubeAPIKey;
+    private readonly IVideoReader _videoReader;
+    private readonly IFeedReader _feedReader;
     private readonly ILogger _logger;
-    public SpaceNewsProcessor(string connectionString,string youTubeAPIKey, ILogger logger)
+    // public SpaceNewsProcessor(string connectionString, string youTubeAPIKey, ILogger logger)
+    public SpaceNewsProcessor(string connectionString, IFeedReader feedReader, IVideoReader videoReader, ILogger logger)
     {
         _logger = logger;
-        _youTubeAPIKey = youTubeAPIKey;
         var conn = new MongoClient(connectionString);
         _database = conn.GetDatabase("SpaceNews");
+        _feedReader = feedReader;
+        _videoReader = videoReader;
     }
 
     public async Task Process()
@@ -34,41 +37,38 @@ public class SpaceNewsProcessor : ISpaceNewsProcessor
             return embedder.Embed(s);
         }
 
-
         foreach (var feed in feeds)
         {
             _logger.LogInformation("Name: {feedName}", feed.Name);
-            
-            using (var client = new HttpClient())
+            var entities = feed.Type == "video" && feed.ChannelId is not null
+                ? await _videoReader
+                .GetVideoData(DateTime.UtcNow.AddDays(-10), feed.ChannelId)
+                : await _feedReader.GetFeed(feed.Url);            
+
+            var embeddedEntries = entities.Select(e => new NewsEntity
             {
-                var entities = feed.Type == "video" && feed.ChannelId is not null
-                    ? await new YouTubeVideoReader(client, _youTubeAPIKey)
-                    .GetVideoData(DateTime.UtcNow.AddDays(-10), feed.ChannelId)
-                    : await new FeedReader(client).GetFeed(feed.Url);
+                Description = e.Description,
+                FeedItemId = e.ItemId,
+                Links = e.Links,
+                PublishDate = e.PublishDate,
+                SourceId = feed.Id,
+                Source = feed.Name,
+                Title = e.Title,
+                Embeddings = GenerateEmbedding(e.Title, e.Description).Values.ToArray()
+            });
 
-                var embeddedEntries = entities.Select(e => new NewsEntity
-                {
-                    Description = e.Description,
-                    FeedItemId = e.ItemId,
-                    Links = e.Links,
-                    PublishDate = e.PublishDate,
-                    SourceId = feed.Id,
-                    Source = feed.Name,
-                    Title = e.Title,
-                    Embeddings = GenerateEmbedding(e.Title, e.Description).Values.ToArray()
-                });
+            _logger.LogInformation("Entries: {entries}", embeddedEntries.Count());
 
-                try
-                {
-                    // await newsCollection.InsertManyAsync(embeddedEntries, new InsertManyOptions { IsOrdered = false });
-                }
-                catch (MongoBulkWriteException<NewsEntity> ex)
-                {
-                    // Step 2: Handle any errors (e.g., duplicates)
-                    var insertedCount = ex.Result.InsertedCount;
-                    _logger.LogInformation("Inserted {insertedCount}", insertedCount);
-                    _logger.LogWarning("Some documents were skipped due to duplicates.");
-                }
+            try
+            {
+                // await newsCollection.InsertManyAsync(embeddedEntries, new InsertManyOptions { IsOrdered = false });
+            }
+            catch (MongoBulkWriteException<NewsEntity> ex)
+            {
+                // Step 2: Handle any errors (e.g., duplicates)
+                var insertedCount = ex.Result.InsertedCount;
+                _logger.LogInformation("Inserted {insertedCount}", insertedCount);
+                _logger.LogWarning("Some documents were skipped due to duplicates.");
             }
         }
     }
