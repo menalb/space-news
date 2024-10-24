@@ -28,21 +28,39 @@ public class SpaceNewsProcessor : ISpaceNewsProcessor
         var feeds = await GetSources();
 
         using var embedder = new LocalEmbedder();
+        EmbeddingF32 GenerateEmbedding(string title, string description)
+        {
+            var s = $"### Title: {title} ### Description: {description}";
+            return embedder.Embed(s);
+        }
+
 
         foreach (var feed in feeds)
         {
             _logger.LogInformation("Name: {feedName}", feed.Name);
-
-            Console.WriteLine($"Name: {feed.Name}");
+            
             using (var client = new HttpClient())
             {
-                var entities = feed.Type == "video"
-                    ? await new VideoReader(client, _youTubeAPIKey).GetVideoData(DateTime.UtcNow.AddDays(-10), feed, embedder)
-                    : await new FeedReader(client).GetFeed(feed, embedder);
+                var entities = feed.Type == "video" && feed.ChannelId is not null
+                    ? await new YouTubeVideoReader(client, _youTubeAPIKey)
+                    .GetVideoData(DateTime.UtcNow.AddDays(-10), feed.ChannelId)
+                    : await new FeedReader(client).GetFeed(feed.Url);
+
+                var embeddedEntries = entities.Select(e => new NewsEntity
+                {
+                    Description = e.Description,
+                    FeedItemId = e.ItemId,
+                    Links = e.Links,
+                    PublishDate = e.PublishDate,
+                    SourceId = feed.Id,
+                    Source = feed.Name,
+                    Title = e.Title,
+                    Embeddings = GenerateEmbedding(e.Title, e.Description).Values.ToArray()
+                });
 
                 try
                 {
-                    await newsCollection.InsertManyAsync(entities, new InsertManyOptions { IsOrdered = false });
+                    // await newsCollection.InsertManyAsync(embeddedEntries, new InsertManyOptions { IsOrdered = false });
                 }
                 catch (MongoBulkWriteException<NewsEntity> ex)
                 {
