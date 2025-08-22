@@ -61,7 +61,7 @@ public class SpaceNewsProcessor : ISpaceNewsProcessor
 
             try
             {
-                // await newsCollection.InsertManyAsync(embeddedEntries, new InsertManyOptions { IsOrdered = false });
+                await newsCollection.InsertManyAsync(embeddedEntries, new InsertManyOptions { IsOrdered = false });
             }
             catch (MongoBulkWriteException<NewsEntity> ex)
             {
