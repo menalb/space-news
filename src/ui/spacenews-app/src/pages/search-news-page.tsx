@@ -51,8 +51,11 @@ export const SearchNewsPage: React.FC = () => {
     const semanticSearch = async () => {
         await loadNews('semantic');
     }
+    const hybridSearch = async () => {
+        await loadNews('hybrid');
+    }
 
-    const loadNews = async (searchType: 'semantic' | 'text' | 'none') => {
+    const loadNews = async (searchType: 'semantic' | 'text' | 'hybrid' | 'none') => {
         if (searchType === 'none' && searchText.length === 0) {
             return;
         }
@@ -124,16 +127,16 @@ export const SearchNewsPage: React.FC = () => {
                         disabled={searchText.length === 0}
                         title="Run search on news"
                     >
-                        Search
-                    </button>
+                        Search Text
+                    </button>                    
                     <button
                         type="button"
                         className="pl-2 pr-2 ml-2 font-semibold bg-white border-2 border-black text-black"
-                        onClick={semanticSearch}
+                        onClick={hybridSearch}
                         disabled={searchText.length === 0}
-                        title="Run semantic search on news"
+                        title="Run hybrid search on news"
                     >
-                        Semantic Search
+                        Ask Question
                     </button>
                 </form>
                 <SourcesSelection

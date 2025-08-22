@@ -1,3 +1,4 @@
+import { GeoLocation } from "./geo-location";
 import ISSTracker from "./iss-tracker";
 
 export const IssTracketPage: React.FC = () => {
@@ -15,6 +16,7 @@ export const IssTracketPage: React.FC = () => {
         </h1>
         <main>
             <ISSTracker />
+            <GeoLocation />
         </main>
     </>;
 }
